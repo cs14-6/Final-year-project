@@ -6,14 +6,13 @@ __author__ = 'SPENCER LLOYD'
 import cv2
 from numpy import *
 from matplotlib import pyplot as plt
-from PIL import Image
 from cv2 import SIFT
 
 
 img = cv2.imread("skin141.png", 0)
 blur = cv2.GaussianBlur(img, (5, 5), 0)
 
-DELAY_BLUR = 5000
+#DELAY_BLUR = 5000
 DELAY_CAPTION = 15000
 
 for i in xrange(1, 10, 2):
