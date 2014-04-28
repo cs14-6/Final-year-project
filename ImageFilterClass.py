@@ -9,30 +9,29 @@ from matplotlib import pyplot as plt
 from cv2 import SIFT
 
 
-img = cv2.imread("skin141.png", 0)
-blur = cv2.GaussianBlur(img, (5, 5), 0)
+def read_and_clean_image(path):
 
-#DELAY_BLUR = 5000
-DELAY_CAPTION = 15000
+    img = cv2.imread(path)
 
-for i in xrange(1, 10, 2):
-    gaussian_blur = cv2.GaussianBlur(img, (i, i), 0)
-    cv2.imshow('Blur', gaussian_blur)
-    #cv2.waitKey(DELAY_BLUR)
+    DELAY_CAPTION = 15000
 
-cv2.waitKey(DELAY_CAPTION)
-#cv2.destroyAllWindows()
+    for i in xrange(1, 10, 2):
+        gaussian_blur = cv2.GaussianBlur(img, (i, i), 0)
+        cv2.imshow('Blur', gaussian_blur)
+
+    cv2.waitKey(DELAY_CAPTION)
+
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    ret, thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
+
+    cv2.imshow('Gray Scale', thresh)
+    cv2.waitKey(DELAY_CAPTION)
 
 
-im2 = cv2.imread("skin141.png")
-gray = cv2.cvtColor(im2, cv2.COLOR_BGR2GRAY)
-ret, thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
+read_and_clean_image("skin141.png")
 
-cv2.imshow('Gray Scale', thresh)
-cv2.waitKey(DELAY_CAPTION)
-
-sift = cv2.SIFT()
-kp = sift.detect(gray)
-kp, des = sift.compute(gray, kp)
+#sift = cv2.SIFT()
+#kp = sift.detect(read_and_clean_image("O:/PROJECTS/SKIN/SKIN IMAGES/skin1.png"))
+#kp, des = sift.compute(read_and_clean_image("O:/PROJECTS/SKIN/SKIN IMAGES/skin1.png"), kp)
 
 
