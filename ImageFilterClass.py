@@ -6,24 +6,13 @@ __author__ = 'SPENCER LLOYD'
 import cv2
 from numpy import *
 from matplotlib import pyplot as plt
-from skimage import data, filter
+from skimage import data, filter, io
 from skimage.filter import threshold_adaptive
 
 
 
 
 DELAY_CAPTION = 15000
-def read_and_clean_image(path):
-
-    img = cv2.imread(path)
-
-    cv2.imshow('Normal', img)
-
-    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    ret, thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
-
-    cv2.imshow('Gray Scale', thresh)
-    cv2.waitKey(DELAY_CAPTION)
 
 
 def skimage_filter_technique():
