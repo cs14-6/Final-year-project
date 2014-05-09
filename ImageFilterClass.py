@@ -4,10 +4,10 @@ __author__ = 'SPENCER LLOYD'
 ''' This class holds the functionality for image filtering and pre-processing '''
 
 import cv2
-from numpy import *
 from matplotlib import pyplot as plt
-from skimage import data, filter, io
+from skimage import data, filter
 from skimage.filter import threshold_adaptive
+import numpy as np
 
 
 
@@ -26,6 +26,10 @@ def skimage_filter_technique():
     return tv_filter
 
 
+def array_generator(skin_image):
+    image_array = np.asarray(skin_image)
+    print list(image_array)
+
 def threshold_skin_image(skin_image):
 
     block_size = 40
@@ -35,4 +39,5 @@ def threshold_skin_image(skin_image):
     plt.show()
 
 
-threshold_skin_image(skimage_filter_technique())
+#threshold_skin_image(skimage_filter_technique())
+array_generator(skimage_filter_technique())
