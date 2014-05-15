@@ -8,7 +8,7 @@ from matplotlib import pyplot as plt
 from skimage import data, filter
 from skimage.filter import threshold_adaptive
 import numpy as np
-
+import csv
 
 
 
@@ -28,7 +28,8 @@ def skimage_filter_technique():
 
 def array_generator(skin_image):
     image_array = np.asarray(skin_image)
-    print list(image_array)
+    return image_array
+
 
 def threshold_skin_image(skin_image):
 
@@ -38,6 +39,33 @@ def threshold_skin_image(skin_image):
     plt.imshow(adaptive_threshold)
     plt.show()
 
+    return adaptive_threshold
 
-#threshold_skin_image(skimage_filter_technique())
-array_generator(skimage_filter_technique())
+
+def feed_Training_Data(training_data, path):
+
+    with open(path, "wb") as csv_file:
+        writer = csv.writer(csv_file, delimiter=',')
+        for line in training_data:
+            writer.writerow(line)
+
+    #training_data = array_generator(skimage_filter_technique())
+    #path = "training_data.csv"
+
+
+
+
+
+def flatten_data(nested_list):
+    for i in nested_list:
+        if isinstance(i, list) or isinstance(i, tuple):
+            for j in flatten_data(i):
+                yield j
+        else:
+            yield i
+
+
+
+new_list = flatten_data(array_generator(skimage_filter_technique()))
+
+feed_Training_Data(new_list, "training_data.csv")
