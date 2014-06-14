@@ -4,20 +4,29 @@ __author__ = 'SPENCER LLOYD'
 ''' This class holds the functionality for image filtering and pre-processing '''
 
 import cv2
-from matplotlib import pyplot as plt
 from skimage import data, filter
-from skimage.filter import threshold_adaptive
 import numpy as np
-import csv
+import os
+import re
 
+bins = 50 # length of data vector
+
+#paths for image data access
+dataFolderPath = 'data'
+
+disease_train_path = 'training_data/disease_train'
+healthy_train_path = 'training_data/healthy_train'
+
+disease_test_path = 'test_data/disease_test'
+healthy_test_path = 'test_data/healthy_test'
 
 
 DELAY_CAPTION = 15000
 
 
-def skimage_filter_technique():
+def skimage_filter_technique(image_path):
 
-    img2 = data.imread('img_res/inf_skin141.png', True)
+    img2 = data.imread(image_path, True)
     tv_filter = filter.denoise_tv_chambolle(img2, weight=0.1)
 
     cv2.imshow('Gray Scale', tv_filter)
@@ -26,46 +35,54 @@ def skimage_filter_technique():
     return tv_filter
 
 
-def array_generator(skin_image):
-    image_array = np.asarray(skin_image)
-    return image_array
 
+def getJpgImages(imgPath):
+    images = next(os.walk(imgPath))[2]
+    imgs = [os.path.join(imgPath, image) for image in images if re.search(r'\S+.jpg', image)]
+    return imgs
 
-def threshold_skin_image(skin_image):
+# get images from the different folders
+trainingDiseasedImages = getJpgImages(disease_train_path)
+trainingHealthyImages = getJpgImages(healthy_train_path)
 
-    block_size = 40
-    adaptive_threshold = threshold_adaptive(skin_image, block_size, offset=10)
-
-    plt.imshow(adaptive_threshold)
-    plt.show()
-
-    return adaptive_threshold
-
-
-def feed_Training_Data(training_data, path):
-
-    with open(path, "wb") as csv_file:
-        writer = csv.writer(csv_file, delimiter=',')
-        for line in training_data:
-            writer.writerow(line)
-
-    #training_data = array_generator(skimage_filter_technique())
-    #path = "training_data.csv"
+testDiseasedImages = getJpgImages(disease_test_path)
+testHealthyImages = getJpgImages(healthy_test_path)
 
 
 
+def calculateHistograms(images, bins):
+    "Calculate histograms for several images and return data arrays"
+    numOfImages = len(images)
+    imageData = np.zeros((numOfImages, bins)) #data array with num of rows = num of images
+    for imageIndex in range(numOfImages):
+        img = cv2.imread(images[imageIndex])
+        img2 = skimage_filter_technique(images[imageIndex])
+        hist = cv2.calcHist([img], [0], None, [bins], [0,256])
+        imageData[imageIndex, :] = hist.transpose()
+    return imageData
+
+# extract data from the images by calculating their histograms
+trainingDiseasedData = calculateHistograms(trainingDiseasedImages, bins).astype(np.float32)
+trainingHealthyData = calculateHistograms(trainingHealthyImages, bins).astype(np.float32)
+testDiseasedData = calculateHistograms(testDiseasedImages, bins).astype(np.float32)
+testHealthyData = calculateHistograms(testHealthyImages, bins).astype(np.float32)
 
 
-def flatten_data(nested_list):
-    for i in nested_list:
-        if isinstance(i, list) or isinstance(i, tuple):
-            for j in flatten_data(i):
-                yield j
-        else:
-            yield i
+# define classes for the data, healthy - class 0, diseased - class - 1
+trainingDiseasedClasses = np.zeros((len(trainingDiseasedData),1)).astype(np.float32)
+trainingHealthyClasses = np.ones((len(trainingHealthyData),1)).astype(np.float32)
+testDiseasedClasses = np.zeros((len(testDiseasedData),1)).astype(np.float32)
+testHealthyClasses = np.ones((len(testHealthyData),1)).astype(np.float32)
 
 
+# concatenate data
+trainingData = np.vstack((trainingHealthyData, trainingDiseasedData))
+trainingClasses = np.vstack((trainingHealthyClasses, trainingDiseasedClasses))
 
-new_list = flatten_data(array_generator(skimage_filter_technique()))
+testData = np.vstack((testHealthyData, testDiseasedData))
+testClasses = np.vstack((testHealthyClasses, testDiseasedClasses))
 
-feed_Training_Data(new_list, "training_data.csv")
+# save data to data folder
+dataName = dataFolderPath + 'imageData.npz'
+np.savez(dataName, train=trainingData, train_labels=trainingClasses, test = testData, test_labels=testClasses)
+
