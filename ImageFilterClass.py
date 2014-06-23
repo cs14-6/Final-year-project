@@ -14,11 +14,11 @@ bins = 50 # length of data vector
 #paths for image data access
 dataFolderPath = 'data'
 
-disease_train_path = 'training_data/disease_train'
-healthy_train_path = 'training_data/healthy_train'
+disease_train_path = 'training_data/deseased'
+healthy_train_path = 'training_data/healthy'
 
-disease_test_path = 'test_data/disease_test'
-healthy_test_path = 'test_data/healthy_test'
+disease_test_path = 'test data/deseased'
+healthy_test_path = 'test data/healthy'
 
 
 DELAY_CAPTION = 15000
@@ -41,7 +41,7 @@ def getJpgImages(imgPath):
     imgs = [os.path.join(imgPath, image) for image in images if re.search(r'\S+.jpg', image)]
     return imgs
 
-# get images from the different folders
+#get images from the different folders
 trainingDiseasedImages = getJpgImages(disease_train_path)
 trainingHealthyImages = getJpgImages(healthy_train_path)
 
@@ -51,9 +51,8 @@ testHealthyImages = getJpgImages(healthy_test_path)
 
 
 def calculateHistograms(images, bins):
-    "Calculate histograms for several images and return data arrays"
     numOfImages = len(images)
-    imageData = np.zeros((numOfImages, bins)) #data array with num of rows = num of images
+    imageData = np.zeros((numOfImages, bins))
     for imageIndex in range(numOfImages):
         img = cv2.imread(images[imageIndex])
         img2 = skimage_filter_technique(images[imageIndex])
@@ -61,7 +60,7 @@ def calculateHistograms(images, bins):
         imageData[imageIndex, :] = hist.transpose()
     return imageData
 
-# extract data from the images by calculating their histograms
+
 trainingDiseasedData = calculateHistograms(trainingDiseasedImages, bins).astype(np.float32)
 trainingHealthyData = calculateHistograms(trainingHealthyImages, bins).astype(np.float32)
 testDiseasedData = calculateHistograms(testDiseasedImages, bins).astype(np.float32)
@@ -69,10 +68,10 @@ testHealthyData = calculateHistograms(testHealthyImages, bins).astype(np.float32
 
 
 # define classes for the data, healthy - class 0, diseased - class - 1
-trainingDiseasedClasses = np.zeros((len(trainingDiseasedData),1)).astype(np.float32)
-trainingHealthyClasses = np.ones((len(trainingHealthyData),1)).astype(np.float32)
-testDiseasedClasses = np.zeros((len(testDiseasedData),1)).astype(np.float32)
-testHealthyClasses = np.ones((len(testHealthyData),1)).astype(np.float32)
+trainingDiseasedClasses = np.ones((len(trainingDiseasedData),1)).astype(np.float32)
+trainingHealthyClasses = np.zeros((len(trainingHealthyData),1)).astype(np.float32)
+testDiseasedClasses = np.ones((len(testDiseasedData),1)).astype(np.float32)
+testHealthyClasses = np.zeros((len(testHealthyData),1)).astype(np.float32)
 
 
 # concatenate data
